@@ -215,7 +215,7 @@
   page-margin: (left: 2.9cm, right: 2.9cm, top: 3cm, bottom: 3cm),
   body
 ) = {
-  counter(page).update(0)
+  counter(page).update(1)
   set page(
     "a4",
     margin: page-margin,
