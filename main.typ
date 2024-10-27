@@ -46,11 +46,13 @@
 #show bibliography: set text(size: 8pt)
 #show link: it => box(clip: true, it)
 
-#bibliography("bibliograhpy.bib")
+#counter(heading.where(level: 1)).update(it => 0) // workaround for header, to NOT show an incorrect numbering at the bibliography
+#counter(heading).update(0)
+#bibliography("bibliography.bib")
 
-#show_endnotes()
+#show_endnotes() //Comment this out if you have no endnotes
 
-#counter(heading.where(level: 1)).update(it => 0) // workaround for header
+#counter(heading.where(level: 1)).update(it => 0) // workaround for header, to NOT show an incorrect numbering at the bibliography
 #counter(heading).update(0)
 #pagebreak(weak: true)
 
