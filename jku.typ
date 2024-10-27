@@ -317,18 +317,6 @@
     )
   }
   
-  if zusammenfassung != [] {
-    pagebreak()
-    heading(outlined: false)[Zusammenfassung]
-    zusammenfassung
-  }
-
-  if abstract != [] {
-    pagebreak()
-    heading(outlined: false)[Abstract]
-    abstract
-  }
-
   pagebreak()
 
   if tableOfContents {
@@ -349,6 +337,20 @@
                   .map(def => [/ #def.long (#def.abbr): #def.desc])
                   .fold([], (sum, it) => sum + it)
   }
+
+    if zusammenfassung != [] {
+    pagebreak()
+    heading(outlined: false)[Zusammenfassung]
+    zusammenfassung
+  }
+
+  if abstract != [] {
+    pagebreak()
+    heading(outlined: false)[Abstract]
+    abstract
+  }
+
+  pagebreak()
   
   body
 }
