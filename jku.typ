@@ -215,7 +215,7 @@
   page-margin: (left: 2.9cm, right: 2.9cm, top: 3cm, bottom: 3cm),
   body
 ) = {
-  counter(page).update(0)
+  counter(page).update(1)
   set page(
     "a4",
     margin: page-margin,
@@ -316,7 +316,7 @@
       ]
     )
   }
-  
+
   pagebreak()
 
   if tableOfContents {
@@ -364,7 +364,7 @@
   page-margin: (left: 3.2cm, right: 3.2cm, top: 3.8cm, bottom: 2.5cm),
   body
 ) = {
-  counter(page).update(0)
+  counter(page).update(1)
 
   // Page setup
   set page(
