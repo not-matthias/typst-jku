@@ -1,1 +1,1 @@
-Abstract Text
+Abstract
