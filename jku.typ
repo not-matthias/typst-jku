@@ -1,6 +1,6 @@
 /*
- Based of the work of Daniel Morawetz, Mai 2023
- Continued by Katharina Sternbauer, October 2024
+ Based on the work of Daniel Morawetz, May 2023
+ Continued by Katharina Sternbauer, October 2024, April 2025
  */
  
 // Save heading and body font families in variables.
@@ -15,20 +15,18 @@
   body: font-base-size,
   large: font-base-size * 1.091,
   Large: font-base-size * 1.2727,
-)
+) 
 #let heading-sizes = (
   h1: font-base-size * 1.8818,
   h2: font-base-size * 1.4181,
   h3: font-base-size * 1.2363,
+  h4: font-base-size * 1.1154,
 )
-
 
 #let _abbreviations = state("abbreviations", (:))
 
-#let abbreviate(long, abbr, desc: "", showAbbr: true) = {
-  _abbreviations.update(d => { d.insert(abbr, (long: long, abbr: abbr, desc: desc)); d })
-  if showAbbr [#long \(#abbr\)]
-  else [#long]
+#let abbreviate(abbr, long, desc: "", showDesc: false) = {
+  _abbreviations.update(d => { d.insert(abbr, (long: long, abbr: abbr, desc: desc, showDesc: showDesc)); d })
 }
 
 // custom numbering definitions
@@ -103,17 +101,17 @@
       )
     ],
     text(size: 9pt)[
-      Submitted by\
+      Author\
       #submitters.map(s => strong(s)).join(", ")
       #v(vSpace)
-      Submitted at\
+      Submission\
       *#department*
       #v(vSpace)
-      Supervisor\
+      Thesis Supervisor\
       *#mainSupervisor*
       #coSupervisors.map(supervisor => [
         #v(vSpace)
-        Co-Supervisor\
+        Assistant Thesis Supervisor\
         *#supervisor*
       ]).join("\n")
       
@@ -148,11 +146,11 @@
     v(-1mm)
   }
   
-  let type-thesis = if typeOfWork == 3 [Bachelor] else if typeOfWork == 2 [Master]
+  let type-thesis = if typeOfWork == 3 [Bachelor] else if typeOfWork == 2 [Master's]
   let type-program = if typeOfWork == 3 [Bachelor's] else if typeOfWork == 2 [Master's]
   
   large[#type-thesis Thesis]
-  small[to obtain the academic degree of]
+  small[to confer the academic degree of]
   large[#degree]
   small[in the #type-program Program]
   large[#study]
@@ -168,8 +166,7 @@
       4040 Linz, Österreich
       #v(-2.68mm)
       www.jku.at
-      #v(-2mm)
-      DVR 0093696
+
     ]
   ]))
 
@@ -181,11 +178,11 @@
       #sym.circle.filled.tiny
       Created at: #datetime.today().display()
     ]),
-    footer-descent: 2cm, // make extra page appear empty
+    footer-descent: 1cm, // make extra page appear empty
   ) if state == 1
 
   set page(
-    footer: [],
+    footer: align(center + horizon)[],
     footer-descent: 0cm,
   ) if state == 0
 
@@ -202,17 +199,25 @@
 
 /**
  * Preface
+ * If you do not need any of the options, set to false and most often 
+ * the according section will automatically be vanishing
+ * tocDepth: Sets maximum heading shown in ToC, like 1 -> Only h1 shown; 3 -> h1 to h3 shown
+ * Pass abstract, ack, zusammenfassung in as a path to the file, done by default in main.typ
  */
 #let preface(
   statutoryDeclaration: true,
   tableOfContents: true,
+  tocDepth: 3,
   tableOfFigures: true,
+  tableOfTables: true,
+  tableOfCode: true,
   listDefinitions: true,
   zusammenfassung: [],
   abstract: [],
+  acknowledgement: [],
   body-size: 11pt,
   heading-sizes: heading-sizes,
-  page-margin: (left: 2.9cm, right: 2.9cm, top: 3cm, bottom: 3cm),
+  page-margin: (left: 3.2cm, right: 3.2cm, top: 3.8cm, bottom: 2.5cm),
   body
 ) = {
   counter(page).update(1)
@@ -222,7 +227,10 @@
     numbering: "i",
     footer-descent: 0cm,
     
+    
     header: context {
+      //Fixates header distance between text and line, make independent of body spacing
+      set par(spacing: 1em) 
       // reset footnote counter
       counter(footnote).update(0)
     
@@ -280,14 +288,18 @@
   set par(justify: true)
   set footnote(numbering: "*")
   show heading: set text(font: font.sans)
+  // This makes the headings a bit bigger
   show heading.where(level: 1): set text(size: heading-sizes.h1)
   show heading.where(level: 2): set text(size: heading-sizes.h2)
   show heading.where(level: 3): set text(size: heading-sizes.h3)
+  show heading.where(level: 4): set text(size: heading-sizes.h4)
+  //Makes h1 headings before main content more space-ious
   show heading.where(level: 1): it => {
-    v(.9cm)
+    v(0.9cm)
     it
-    v(.6cm)
+    v(0.6cm)
   }
+
 
 
   if statutoryDeclaration {
@@ -316,40 +328,78 @@
       ]
     )
   }
-  
-  if zusammenfassung != [] {
-    pagebreak()
-    heading(outlined: false)[Zusammenfassung]
-    zusammenfassung
-  }
 
   if abstract != [] {
     pagebreak()
     heading(outlined: false)[Abstract]
-    abstract
+    text(size: body-size)[#abstract]
+  }
+
+    
+  if zusammenfassung != [] {
+    pagebreak()
+    heading(outlined: false)[Zusammenfassung]
+    text(size: body-size)[#zusammenfassung]
+  }
+
+  if acknowledgement != [] {
+    pagebreak()
+    heading(outlined: false)[Acknowledgement]
+    text(size: body-size)[#acknowledgement]
   }
 
   pagebreak()
 
   if tableOfContents {
-    outline(target: heading, depth: 2, indent: 2em)
+    show outline.entry.where(
+      level: 1
+    ): it => {
+      v(12pt, weak: true)
+      strong(it)
+    }
+    show outline.entry.where(
+      level: 2
+    ): it => {
+      v(1pt, weak: true)
+      h(2em) + it
+    }
+    outline(target: heading, depth: tocDepth, indent: 2em)
+    pagebreak(weak: true)
   }
 
   if tableOfFigures {
     outline(
-      target: figure.where(kind: image).or(figure.where(kind: "table")),
-      title: "Figures and Tables")
+      target: figure.where(kind: image),
+      title: "Images")
+  }
+
+  if tableOfTables {
+    outline(
+      target: figure.where(kind: table),
+      title: "Tables"
+    )    
+  }
+
+  if tableOfCode {
+    outline(
+      target: figure.where(kind: raw),
+      title: "Code"
+    )
   }
 
   if listDefinitions {
-//    pagebreak(weak: true)
+    pagebreak(weak: true)
+    set par(leading: 1.0em)
     heading(outlined: false)[Abbreviations]
     context _abbreviations.final()
                   .values()
-                  .map(def => [/ #def.long (#def.abbr): #def.desc])
+                  .map(def => [*#def.abbr* #text("  ") #def.long #if def.showDesc {
+                    text(" : " + def.desc) 
+                  }\ ])
                   .fold([], (sum, it) => sum + it)
   }
-  
+  pagebreak()
+
   body
 }
 
@@ -359,10 +409,12 @@
 #let mainContent(
   body-size: 11pt,
   heading-sizes: heading-sizes,
+  heading-depth: 3,
   page-margin: (left: 3.2cm, right: 3.2cm, top: 3.8cm, bottom: 2.5cm),
+  language: "en",
   body
 ) = {
-  counter(page).update(0)
+  counter(page).update(1)
 
   // Page setup
   set page(
@@ -371,11 +423,20 @@
     numbering: "1"
   )
 
-  set text(font: font.roman)
-  set par(leading: 0.55em, first-line-indent: 1.3em)
+  set text(font: font.roman, lang: language)
+  set par(spacing: 1.5em, first-line-indent: 0em, leading: 0.75em)
   show terms: set par(first-line-indent: 0em)
   show raw: set text(font: font.mono)
   set math.equation(numbering: "(1)")
+  show figure: set block(inset: (top: 0.225em, bottom: 0.45em))
+
+  show figure.where(kind:raw): it => {
+    set block(breakable: true)
+    set align(left)
+    it.body
+    set align(center)
+    it.caption
+  }
 
   // Headings
   set heading(numbering: "1.")
@@ -383,11 +444,33 @@
   show heading.where(level: 1): set text(size: heading-sizes.h1)
   show heading.where(level: 2): set text(size: heading-sizes.h2)
   show heading.where(level: 3): set text(size: heading-sizes.h3)
+  show heading.where(level: 4): set text(size: heading-sizes.h4)
+
+  // Shows numbering for every header up the value in heading-depth
+  // only the name for anything else.
+  show heading: it => {
+    if (it.numbering != none) {
+      if (it.level > heading-depth){
+          block(it.body)
+      } else {
+          block(counter(heading).display() + " " + it.body)
+      }
+    } else {
+      block(it.body)
+    }
+  }
+
+  // Give h1 and h2 more space around them
+  show heading.where(level: 1): it => {
+    v(0.6cm)
+    it
+    v(0.5cm)
+  }
   show heading.where(level: 2): it => {
     v(.1cm)
     it
     v(.1cm)
   }
-
+  
   body
 }

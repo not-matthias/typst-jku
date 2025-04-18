@@ -1,6 +1,6 @@
 /*
- Based of the work of Daniel Morawetz, Mai 2023
- Continued by Katharina Sternbauer, October 2024
+ Based on the work of Daniel Morawetz, May 2023
+ Continued by Katharina Sternbauer, October 2024, April 2025
  */
 
 #import "jku.typ": *
@@ -8,31 +8,37 @@
 
 #show: coverpage.with( //What is what, see jku.typ
   title: "<Your Title>",
-  submitters: ("<Your name>",),
+  submitters: ("<Your name>",),//Better to keep a comma if only on name is present
   department: "<JKU Department>",
   supervisors: ("<Supervisor name>",), //When no Co-Supervisor is present, you MUST keep the comma or Typst will not interpret this as an array
-  date: "<date>",
-  typeOfWork: -1,
+  date: datetime.today().display("[month repr:long] [year]"),
+  typeOfWork: 2,
   state: 0,
   version: "<Nr>",
-  degree: "<Degree>",
+  degree: text()[Title],
   study: "<Study>"
 )
 
 #show "OTMEvolver": text(font: font.sans, hyphenate: false)[OTM#super([Evolver])]
 
-#let zusammenfassung = include "content/preface/zusammenfassung.typ"
-
-#let abstract = include "content/preface/abstract.typ"
-
 #show: preface.with(
-  zusammenfassung: zusammenfassung,
-  abstract: abstract,
+  statutoryDeclaration: true,
+  // If you do not need abstract, zusammenfassung or ack, just comment them out or remove line
+  abstract: include "content/preface/abstract.typ",
+  zusammenfassung: include "content/preface/zusammenfassung.typ",
+  acknowledgement: include "content/preface/acknowledgement.typ",
+  tocDepth: 3, //Depth of headings shown in ToC; e.g. 1 = Only h1 shown, 3 = H1 to H3 shown
+  tableOfFigures: true, //Set to false if any tableOf is not needed
+  tableOfTables: true,
+  tableOfCode: true,
 )
+
+// Add abbreviations with #abbreviate("Short", "Spelled out long form")
+#abbreviate("TEST", "Totally Expected Stupid Test")
 
 
 #show: mainContent.with(
-  //page-margin: (x: 4cm, y: 5cm),
+  //heading-depth: 3 
 )
 
 #show link: set text(fill: blue, hyphenate: true)
@@ -43,16 +49,14 @@
 #include "content/01-introduction.typ"
 #pagebreak()
 
+
+#counter(heading.where(level: 1)).update(it => 0) // workaround for header to not show a number for bib
 #show bibliography: set text(size: 8pt)
 #show link: it => box(clip: true, it)
+#bibliography("bibliography.bib", style: "ieee") //Select your bib style here
 
-#counter(heading.where(level: 1)).update(it => 0) // workaround for header, to NOT show an incorrect numbering at the bibliography
-#counter(heading).update(0)
-#bibliography("bibliography.bib")
+// #show_endnotes() //Comment this out if you have no endnotes
 
-#show_endnotes() //Comment this out if you have no endnotes
-
-#counter(heading.where(level: 1)).update(it => 0) // workaround for header, to NOT show an incorrect numbering at the bibliography
 #counter(heading).update(0)
 #pagebreak(weak: true)
 
@@ -60,4 +64,3 @@
 #set page(flipped: false) //To go in landscape mode, set to true if needed for attachments
 #heading("Attachments") <attachments>
 #include "content/attachment-a.typ"
-

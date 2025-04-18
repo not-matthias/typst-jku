@@ -1,1 +1,1 @@
-Zusammenfassung Text
+Kurzzusammenfassung

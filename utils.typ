@@ -1,6 +1,6 @@
 /*
- Based of the work of Daniel Morawetz, Mai 2023
- Continued by Katharina Sternbauer, October 2024
+ Based on the work of Daniel Morawetz, May 2023
+ Continued by Katharina Sternbauer, October 2024, April 2025
  */
 
 #import "jku.typ": font
